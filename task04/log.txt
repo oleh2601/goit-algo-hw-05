@@ -8,3 +8,6 @@
 2024-01-22 12:00:00 INFO User logged out.
 2024-01-22 12:45:05 DEBUG Checking system health.
 2024-01-22 13:30:30 INFO Scheduled maintenance.
+2024-01-23 09:45:12 WARNING High memory usage detected.
+2024-01-23 10:10:43 ERROR Unable to allocate memory.
+2024-01-23 11:00:01 INFO User logged back in.
