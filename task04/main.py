@@ -2,13 +2,18 @@ import sys
 from functools import wraps
 
 def input_error(func):
+    @wraps(func)
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except ValueError:
-            return "Please provide name and phone."
+            return "Please provide valid data"
         except IndexError:
-            return "Please provide name and phone."
+            return "Please provide valid data."
+        except TypeError:
+            return "Please provide valid data."
+        except KeyError:
+            return "Please provide valid data."
 
     return inner
 
@@ -18,69 +23,33 @@ def add_contact(args, contacts: dict) -> str:
     contacts[name] = phone
     return "Contact added."
 
-def get_all_contacts_error(func):
-    def wrapper(contacts):
-        try:
-            if not contacts:
-                return "No contacts found."
-            return func(contacts)
-        except TypeError:
-            return "No contacts found."
-    return wrapper
         
-@get_all_contacts_error
+@input_error
 def get_all_contacts(contacts: dict) -> str:
     if contacts:
         return "\n".join([f"{name}: {phone}" for name, phone in contacts.items()])
+    else:
+        return "No contacts found."
     
-def get_phone_error(func):
-    def wrapper(*args):
-        try:
-            if not args or not args[0]:
-                return "Please provide the name of the contact."
-            name_args = args[0]
-            if not name_args:
-                return "Please provide the name of the contact."
-            name = name_args[0]
-            contacts = args[1]
-            return func(name, contacts)  
-        except KeyError:
-            return "This contact does not exist."
-        except IndexError:
-            return "Please provide the name of the contact."
-        except TypeError:
-            return "Please provide the name of the contact."
-    return wrapper
 
-@get_phone_error
-def get_phone(name, contacts: dict) -> str:
-    return contacts[name]
+@input_error
+def get_phone(args, contacts: dict) -> str:
+    name = args[0]
+    return contacts.get(name, "Contact not found")
 
+@input_error
 def parse_input(user_input):
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
     return cmd, *args
 
-def change_contact_error(func):
-    def inner(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except ValueError:
-            return "Please provide name and phone."
-        except IndexError:
-            return "Please provide name and phone."
-        except TypeError:
-            return "Please provide name and phone."
-
-    return inner
-
-@change_contact_error
+@input_error
 def change_contact(args, contacts: dict) -> str:
     name, phone = args
     contacts[name] = phone
     return "Contact changed."
 
-
+@input_error
 def main():
     contacts = {}
     print("Welcome to the assistant bot!")
@@ -96,13 +65,13 @@ def main():
             case "hello":
                 print("How can I help you?")
             case "add":
-                print(add_contact(args, contacts))     
+                print(add_contact(args, contacts=contacts))     
             case "change":
-                print(change_contact(args, contacts))  
+                print(change_contact(args, contacts=contacts))  
             case "phone":
-                print(get_phone(args, contacts))
+                print(get_phone(args, contacts=contacts))
             case "all":
-                print(get_all_contacts(contacts))
+                print(get_all_contacts(contacts=contacts))
             case "help":
                 print('Available commands: \n'
                       '  "add" username number \n'
